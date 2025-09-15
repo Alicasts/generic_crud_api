@@ -24,7 +24,6 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: dev
-      # Override da URL para apontar pro serviço 'db' dentro da rede do compose:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/genericdb
       SPRING_DATASOURCE_USERNAME: generic
       SPRING_DATASOURCE_PASSWORD: changemegeneric
