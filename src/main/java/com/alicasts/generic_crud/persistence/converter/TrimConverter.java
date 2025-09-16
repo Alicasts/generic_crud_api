@@ -1,5 +1,6 @@
 package com.alicasts.generic_crud.persistence.converter;
 
+import com.alicasts.generic_crud.util.Normalizer;
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
@@ -7,8 +8,7 @@ import jakarta.persistence.Converter;
 public class TrimConverter implements AttributeConverter<String, String> {
     @Override
     public String convertToDatabaseColumn(String attribute) {
-        if (attribute == null) return null;
-        return attribute.trim();
+        return Normalizer.trim(attribute);
     }
 
     @Override
