@@ -1,14 +1,20 @@
 package com.alicasts.generic_crud.api.exception;
 
 import com.alicasts.generic_crud.service.exception.ResourceConflictException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -32,6 +38,30 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(new ApiError("RESOURCE_CONFLICT", "conflict", errors));
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiError> handleNotReadable(HttpMessageNotReadableException ex) {
+        Throwable root = NestedExceptionUtils.getMostSpecificCause(ex);
+        List<FieldError> errors = new ArrayList<>();
+
+        if (root instanceof InvalidFormatException ife) {
+            String field = ife.getPath().isEmpty() ? null : ife.getPath().getFirst().getFieldName();
+            String msg = "invalid value";
+            Class<?> target = ife.getTargetType();
+            if (target.isEnum()) {
+                String allowed = Arrays.stream(target.getEnumConstants())
+                        .map(Object::toString)
+                        .collect(Collectors.joining(", "));
+                msg = "must be one of: " + allowed;
+            }
+            if (field != null) {
+                errors.add(new FieldError(field, msg));
+            }
+        }
+
+        return ResponseEntity.badRequest()
+                .body(new ApiError("INVALID_BODY", "invalid request body", errors));
     }
 
     @ExceptionHandler(Exception.class)

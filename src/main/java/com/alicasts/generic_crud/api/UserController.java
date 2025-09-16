@@ -2,6 +2,7 @@ package com.alicasts.generic_crud.api;
 
 import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
 import com.alicasts.generic_crud.api.dto.UserCreateResponseDTO;
+import com.alicasts.generic_crud.service.IUserService;
 import com.alicasts.generic_crud.service.impl.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -12,9 +13,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 @RequestMapping("/api/users")
 public class UserController {
 
-    private final UserService service;
+    private final IUserService service;
 
-    public UserController(UserService service) {
+    public UserController(IUserService service) {
         this.service = service;
     }
 
