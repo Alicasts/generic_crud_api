@@ -41,13 +41,11 @@ public class User {
     private Integer age;
 
     @NotBlank
-    @Pattern(regexp = "\\d{11}")
     @Column(nullable = false, length = 11)
     @Convert(converter = DigitsOnlyConverter.class)
     private String cpf;
 
     @NotBlank
-    @Pattern(regexp = "\\d{8}")
     @Column(nullable = false, length = 8)
     @Convert(converter = DigitsOnlyConverter.class)
     private String cep;
