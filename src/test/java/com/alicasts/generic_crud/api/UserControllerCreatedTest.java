@@ -1,14 +1,14 @@
 package com.alicasts.generic_crud.api;
 
 import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
-import com.alicasts.generic_crud.api.dto.UserCreateResponseDTO;
+import com.alicasts.generic_crud.api.dto.UserResponseDTO;
 import com.alicasts.generic_crud.model.Sex;
 import com.alicasts.generic_crud.service.IUserService;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -42,7 +42,7 @@ class UserControllerCreatedTest {
         }
         """;
 
-        var response = new UserCreateResponseDTO(
+        var response = new UserResponseDTO(
                 1L,
                 "Ana Silva",
                 "ana.silva+test@example.com",

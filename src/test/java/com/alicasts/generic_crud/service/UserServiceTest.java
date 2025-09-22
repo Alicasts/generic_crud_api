@@ -1,7 +1,7 @@
 package com.alicasts.generic_crud.service;
 
 import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
-import com.alicasts.generic_crud.api.dto.UserCreateResponseDTO;
+import com.alicasts.generic_crud.api.dto.UserResponseDTO;
 import com.alicasts.generic_crud.model.Sex;
 import com.alicasts.generic_crud.model.User;
 import com.alicasts.generic_crud.repository.UserRepository;
@@ -88,13 +88,13 @@ class UserServiceTest {
             return saved;
         });
 
-        UserCreateResponseDTO out = service.create(body);
+        UserResponseDTO out = service.create(body);
 
         assertNotNull(out);
-        assertEquals(1L, out.getId());
-        assertEquals("ana@example.com", out.getEmail());
-        assertEquals("12345678901", out.getCpf());
-        assertEquals("88000000", out.getCep());
+        assertEquals(1L, out.id());
+        assertEquals("ana@example.com", out.email());
+        assertEquals("12345678901", out.cpf());
+        assertEquals("88000000", out.cep());
 
         verify(userRepository).existsByEmail("ana@example.com");
         verify(userRepository).existsByCpf("12345678901");
