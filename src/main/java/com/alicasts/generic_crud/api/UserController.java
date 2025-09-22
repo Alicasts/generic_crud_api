@@ -4,13 +4,21 @@ import com.alicasts.generic_crud.api.dto.PageResponse;
 import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
 import com.alicasts.generic_crud.api.dto.UserResponseDTO;
 import com.alicasts.generic_crud.service.IUserService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/users")
+@Validated
 public class UserController {
 
     private final IUserService userService;
@@ -20,8 +28,19 @@ public class UserController {
     }
 
     @PostMapping
-    public UserResponseDTO create(@RequestBody UserCreateRequestDTO dto) {
-        return userService.create(dto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponseDTO create(@RequestBody UserCreateRequestDTO dto,
+                                  HttpServletResponse response) {
+        UserResponseDTO created = userService.create(dto);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.id())
+                .toUri();
+
+        response.setHeader(HttpHeaders.LOCATION, location.toString());
+
+        return created;
     }
 
     @GetMapping
