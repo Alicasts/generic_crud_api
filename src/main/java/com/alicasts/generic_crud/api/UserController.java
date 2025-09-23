@@ -5,6 +5,7 @@ import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
 import com.alicasts.generic_crud.api.dto.UserResponseDTO;
 import com.alicasts.generic_crud.service.IUserService;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -29,7 +30,7 @@ public class UserController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public UserResponseDTO create(@RequestBody UserCreateRequestDTO dto,
+    public UserResponseDTO create(@Valid @RequestBody UserCreateRequestDTO dto,
                                   HttpServletResponse response) {
         UserResponseDTO created = userService.create(dto);
 
