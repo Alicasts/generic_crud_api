@@ -64,10 +64,16 @@ public class GlobalExceptionHandler {
                 .body(new ApiError("INVALID_BODY", "invalid request body", errors));
     }
 
+    @ExceptionHandler(ResourceConflictException.ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(ResourceConflictException.ResourceNotFoundException ex) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ApiError("RESOURCE_NOT_FOUND", ex.getMessage()));
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiError> handleGeneric(Exception ex) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ApiError("INTERNAL_ERROR", "Unexpected error"));
+                .body(new ApiError("INTERNAL_ERROR", ex.getMessage()));
     }
 
     public record ApiError(String code, String message, List<FieldError> errors) {

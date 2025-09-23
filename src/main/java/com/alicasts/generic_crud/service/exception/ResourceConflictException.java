@@ -19,5 +19,9 @@ public class ResourceConflictException extends RuntimeException {
         this.fields = List.copyOf(fields);
     }
 
+    public class ResourceNotFoundException extends RuntimeException {
+        public ResourceNotFoundException(String message) { super(message); }
+    }
+
     public List<String> getFields() { return fields; }
 }
