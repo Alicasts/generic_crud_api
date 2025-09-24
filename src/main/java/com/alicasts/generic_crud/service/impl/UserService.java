@@ -8,6 +8,7 @@ import com.alicasts.generic_crud.model.User;
 import com.alicasts.generic_crud.repository.UserRepository;
 import com.alicasts.generic_crud.service.IUserService;
 import com.alicasts.generic_crud.service.exception.ResourceConflictException;
+import com.alicasts.generic_crud.service.exception.ResourceNotFoundException;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -86,7 +87,7 @@ public class UserService implements IUserService {
     @Transactional(readOnly = true)
     public UserResponseDTO findById(Long id) {
         var user = userRepository.findById(id)
-                .orElseThrow(() -> new ResourceConflictException.ResourceNotFoundException("user not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
         return userMapper.toResponse(user);
     }
 }

@@ -1,12 +1,12 @@
 package com.alicasts.generic_crud.api.exception;
 
 import com.alicasts.generic_crud.service.exception.ResourceConflictException;
+import com.alicasts.generic_crud.service.exception.ResourceNotFoundException;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import org.springframework.core.NestedExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -64,8 +64,8 @@ public class GlobalExceptionHandler {
                 .body(new ApiError("INVALID_BODY", "invalid request body", errors));
     }
 
-    @ExceptionHandler(ResourceConflictException.ResourceNotFoundException.class)
-    public ResponseEntity<ApiError> handleNotFound(ResourceConflictException.ResourceNotFoundException ex) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiError> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(new ApiError("RESOURCE_NOT_FOUND", ex.getMessage()));
     }
