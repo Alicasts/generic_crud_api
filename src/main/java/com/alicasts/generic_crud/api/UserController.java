@@ -51,4 +51,14 @@ public class UserController {
     ) {
         return userService.findAll(pageable);
     }
+
+    @GetMapping("/{id}")
+    public UserResponseDTO getById(@PathVariable Long id) {
+        return userService.findById(id);
+    }
+
+    @GetMapping(params = "id")
+    public UserResponseDTO getByIdParam(@RequestParam("id") Long id) {
+        return userService.findById(id);
+    }
 }

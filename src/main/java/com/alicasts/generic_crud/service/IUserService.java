@@ -9,4 +9,5 @@ public interface IUserService {
 
     UserResponseDTO create(UserCreateRequestDTO r);
     PageResponse<UserResponseDTO> findAll(Pageable pageable);
+    UserResponseDTO findById(Long id);
 }

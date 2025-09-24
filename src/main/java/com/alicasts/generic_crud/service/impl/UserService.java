@@ -81,4 +81,12 @@ public class UserService implements IUserService {
 
         return PageResponse.from(page, content);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponseDTO findById(Long id) {
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceConflictException.ResourceNotFoundException("user not found"));
+        return userMapper.toResponse(user);
+    }
 }
