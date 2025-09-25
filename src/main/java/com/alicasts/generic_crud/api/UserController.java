@@ -1,30 +1,67 @@
 package com.alicasts.generic_crud.api;
 
+import com.alicasts.generic_crud.api.dto.PageResponse;
 import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
-import com.alicasts.generic_crud.api.dto.UserCreateResponseDTO;
+import com.alicasts.generic_crud.api.dto.UserResponseDTO;
 import com.alicasts.generic_crud.service.IUserService;
-import com.alicasts.generic_crud.service.impl.UserService;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import org.springframework.http.ResponseEntity;
+import jakarta.validation.constraints.Email;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @RequestMapping("/api/users")
+@Validated
 public class UserController {
 
-    private final IUserService service;
+    private final IUserService userService;
 
-    public UserController(IUserService service) {
-        this.service = service;
+    public UserController(IUserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping
-    public ResponseEntity<UserCreateResponseDTO> create(@Valid @RequestBody UserCreateRequestDTO body,
-                                               UriComponentsBuilder uriBuilder) {
-        UserCreateResponseDTO created = service.create(body);
-        return ResponseEntity
-                .created(uriBuilder.path("/api/users/{id}").buildAndExpand(created.getId()).toUri())
-                .body(created);
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponseDTO create(@Valid @RequestBody UserCreateRequestDTO dto,
+                                  HttpServletResponse response) {
+        UserResponseDTO created = userService.create(dto);
+
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(created.id())
+                .toUri();
+
+        response.setHeader(HttpHeaders.LOCATION, location.toString());
+
+        return created;
+    }
+
+    @GetMapping
+    public PageResponse<UserResponseDTO> getAll(
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
+            Pageable pageable
+    ) {
+        return userService.findAll(pageable);
+    }
+
+    @GetMapping(value = "/{id:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UserResponseDTO getById(@PathVariable Long id) {
+        return userService.findById(id);
+    }
+
+
+    @GetMapping(value = "/by-email", produces = MediaType.APPLICATION_JSON_VALUE)
+    public UserResponseDTO getByEmail(@RequestParam @Email String email) {
+        return userService.findByEmail(email);
     }
 }

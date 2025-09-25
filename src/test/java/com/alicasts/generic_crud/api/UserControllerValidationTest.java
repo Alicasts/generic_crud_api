@@ -93,4 +93,26 @@ class UserControllerValidationTest {
 
         verifyNoInteractions(userService);
     }
+
+    @Test
+    void create_invalidEnum_returns400_withInvalidBody() throws Exception {
+        String body = """
+        {
+          "name": "Ana Silva",
+          "email": "ana@example.com",
+          "age": 28,
+          "cpf": "12345678901",
+          "cep": "88000000",
+          "address": "Rua X, 100",
+          "sex": "NA"
+        }
+        """;
+
+        mvc.perform(post("/api/users")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(body))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.code").value("INVALID_BODY"))
+                .andExpect(jsonPath("$.errors[0].field").value("sex"));
+    }
 }

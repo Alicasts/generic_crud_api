@@ -7,13 +7,13 @@ import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class UserCreateResponseDTOTest {
+class UserResponseDTOTest {
 
     @Test
     void getters_returnConstructorValues() {
         Instant now = Instant.parse("2025-09-16T13:00:00Z");
 
-        var dto = new UserCreateResponseDTO(
+        var dto = new UserResponseDTO(
                 1L,
                 "Ana Silva",
                 "ana@example.com",
@@ -26,15 +26,15 @@ class UserCreateResponseDTOTest {
                 now
         );
 
-        assertEquals(1L, dto.getId());
-        assertEquals("Ana Silva", dto.getName());
-        assertEquals("ana@example.com", dto.getEmail());
-        assertEquals(28, dto.getAge());
-        assertEquals("12345678901", dto.getCpf());
-        assertEquals("88000000", dto.getCep());
-        assertEquals("Rua X, 100", dto.getAddress());
-        assertEquals(Sex.FEMALE, dto.getSex());
-        assertEquals(now, dto.getCreatedAt());
-        assertEquals(now, dto.getUpdatedAt());
+        assertEquals(1L, dto.id());
+        assertEquals("Ana Silva", dto.name());
+        assertEquals("ana@example.com", dto.email());
+        assertEquals(28, dto.age());
+        assertEquals("12345678901", dto.cpf());
+        assertEquals("88000000", dto.cep());
+        assertEquals("Rua X, 100", dto.address());
+        assertEquals(Sex.FEMALE, dto.sex());
+        assertEquals(now, dto.createdAt());
+        assertEquals(now, dto.updatedAt());
     }
 }
