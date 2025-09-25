@@ -90,4 +90,13 @@ public class UserService implements IUserService {
                 .orElseThrow(() -> new ResourceNotFoundException("user not found"));
         return userMapper.toResponse(user);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public UserResponseDTO findByEmail(String rawEmail) {
+        final String normalized = email(rawEmail);
+        var user = userRepository.findByEmailIgnoreCase(normalized)
+                .orElseThrow(() -> new ResourceNotFoundException("user not found"));
+        return userMapper.toResponse(user);
+    }
 }

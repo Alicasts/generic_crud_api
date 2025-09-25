@@ -6,6 +6,7 @@ import com.alicasts.generic_crud.api.dto.UserResponseDTO;
 import com.alicasts.generic_crud.service.IUserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -57,8 +58,9 @@ public class UserController {
         return userService.findById(id);
     }
 
-    @GetMapping(params = "id")
-    public UserResponseDTO getByIdParam(@RequestParam("id") Long id) {
-        return userService.findById(id);
+
+    @GetMapping("/email")
+    public UserResponseDTO getByEmail(@RequestParam @Email String email) {
+        return userService.findByEmail(email);
     }
 }

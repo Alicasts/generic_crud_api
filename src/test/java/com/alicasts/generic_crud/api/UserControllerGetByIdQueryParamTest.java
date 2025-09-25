@@ -38,7 +38,7 @@ class UserControllerGetByIdQueryParamTest {
         );
         when(userService.findById(eq(1L))).thenReturn(dto);
 
-        mvc.perform(get("/api/users?id=1").accept(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/users/1").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id").value(1))
@@ -49,7 +49,7 @@ class UserControllerGetByIdQueryParamTest {
     void getById_queryParam_notFound_returns404() throws Exception {
         when(userService.findById(eq(999L))).thenThrow(new ResourceNotFoundException("user not found"));
 
-        mvc.perform(get("/api/users?id=999").accept(MediaType.APPLICATION_JSON))
+        mvc.perform(get("/api/users/999").accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.code").value("RESOURCE_NOT_FOUND"))
                 .andExpect(jsonPath("$.message").value("user not found"));
