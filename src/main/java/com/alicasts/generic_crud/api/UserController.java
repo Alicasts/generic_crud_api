@@ -3,6 +3,7 @@ package com.alicasts.generic_crud.api;
 import com.alicasts.generic_crud.api.dto.PageResponse;
 import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
 import com.alicasts.generic_crud.api.dto.UserResponseDTO;
+import com.alicasts.generic_crud.api.dto.UserUpdateRequest;
 import com.alicasts.generic_crud.service.IUserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -63,5 +64,12 @@ public class UserController {
     @GetMapping(value = "/by-email", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDTO getByEmail(@RequestParam @Email String email) {
         return userService.findByEmail(email);
+    }
+
+    @PutMapping("/{id}")
+    public UserResponseDTO update(
+            @PathVariable Long id,
+            @Valid @RequestBody UserUpdateRequest requestData) {
+        return userService.update(id, requestData);
     }
 }

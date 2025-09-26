@@ -3,7 +3,9 @@ package com.alicasts.generic_crud.service.impl;
 import com.alicasts.generic_crud.api.dto.PageResponse;
 import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
 import com.alicasts.generic_crud.api.dto.UserResponseDTO;
+import com.alicasts.generic_crud.api.dto.UserUpdateRequest;
 import com.alicasts.generic_crud.api.mapper.UserMapper;
+import com.alicasts.generic_crud.api.mapper.UserPatchMapper;
 import com.alicasts.generic_crud.model.User;
 import com.alicasts.generic_crud.repository.UserRepository;
 import com.alicasts.generic_crud.service.IUserService;
@@ -28,10 +30,12 @@ public class UserService implements IUserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserPatchMapper userPatchMapper;
 
-    public UserService(UserRepository userRepository, UserMapper userMapper) {
+    public UserService(UserRepository userRepository, UserMapper userMapper, UserPatchMapper userPatchMapper) {
         this.userRepository = userRepository;
         this.userMapper = userMapper;
+        this.userPatchMapper = userPatchMapper;
     }
 
     @Override
@@ -98,5 +102,17 @@ public class UserService implements IUserService {
         var user = userRepository.findByEmailIgnoreCase(normalized)
                 .orElseThrow(() -> new ResourceNotFoundException("user not found"));
         return userMapper.toResponse(user);
+    }
+
+    @Transactional
+    @Override
+    public UserResponseDTO update(Long id, UserUpdateRequest requestData) {
+        var user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found: " + id));
+
+        var patch = userPatchMapper.toPatch(requestData);
+        user.apply(patch);
+
+        return userMapper.toResponse(userRepository.save(user));
     }
 }

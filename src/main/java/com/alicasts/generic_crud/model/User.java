@@ -108,4 +108,15 @@ public class User {
     public Sex getSex() { return sex; }
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }
+
+    public void apply(UserPatch patch) {
+        if (patch == null) return;
+
+        if (patch.name() != null)    this.name = patch.name();
+        if (patch.age() != null)     this.age = patch.age();
+        if (patch.cpf() != null)     this.cpf = patch.cpf();
+        if (patch.cep() != null)     this.cep = patch.cep();
+        if (patch.address() != null) this.address = patch.address();
+        if (patch.sex() != null)     this.sex = patch.sex();
+    }
 }
