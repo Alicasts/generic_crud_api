@@ -19,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+
 import static com.alicasts.generic_crud.util.Normalizer.email;
 
 @Service
@@ -104,5 +106,18 @@ public class UserService implements IUserService {
         user.apply(patch);
 
         return userMapper.toResponse(userRepository.save(user));
+    }
+
+    @Transactional
+    @Override
+    public void delete(Long id) {
+        if (!userRepository.existsById(id)) {
+            throw new ResourceNotFoundException("User not found: id=" + id);
+        }
+        try {
+            userRepository.deleteById(id);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResourceConflictException(Collections.singletonList("Cannot delete user id=" + id + " due to related data."));
+        }
     }
 }

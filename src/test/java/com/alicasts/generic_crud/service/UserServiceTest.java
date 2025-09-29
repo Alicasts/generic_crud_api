@@ -183,10 +183,8 @@ class UserServiceTest {
     void create_dbUniqueViolation_fallback409Generic_fieldsEmpty() throws Exception {
         var body = req("Ana", "Ana@Example.com", 28, "123.456.789-01", "88000-000", "Rua X", Sex.FEMALE);
 
-        // Guard ok
         doNothing().when(uniquenessGuard).checkOnCreate("Ana@Example.com", "123.456.789-01");
 
-        // Mapper -> Entity (evita save(null))
         User entity = new User(
                 "Ana",
                 "Ana@Example.com",

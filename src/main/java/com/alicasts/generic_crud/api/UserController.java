@@ -8,12 +8,14 @@ import com.alicasts.generic_crud.service.IUserService;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.Min;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -71,5 +73,11 @@ public class UserController {
             @PathVariable Long id,
             @Valid @RequestBody UserUpdateRequest requestData) {
         return userService.update(id, requestData);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable @Min(1) Long id) {
+        userService.delete(id);
+        return ResponseEntity.noContent().build();
     }
 }
