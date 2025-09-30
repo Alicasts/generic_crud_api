@@ -14,4 +14,7 @@ public interface IUserService {
     UserResponseDTO findById(Long id);
     UserResponseDTO findByEmail(String email);
     UserResponseDTO update(Long id, UserUpdateRequest requestData);
+
+    @Transactional
+    void delete(Long id);
 }

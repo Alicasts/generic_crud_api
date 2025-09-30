@@ -7,11 +7,13 @@ import com.alicasts.generic_crud.model.Sex;
 import com.alicasts.generic_crud.model.User;
 import com.alicasts.generic_crud.repository.UserRepository;
 import com.alicasts.generic_crud.service.exception.ResourceConflictException;
+import com.alicasts.generic_crud.service.exception.ResourceNotFoundException;
 import com.alicasts.generic_crud.service.guard.UserUniquenessGuard;
 import com.alicasts.generic_crud.service.impl.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -183,10 +185,8 @@ class UserServiceTest {
     void create_dbUniqueViolation_fallback409Generic_fieldsEmpty() throws Exception {
         var body = req("Ana", "Ana@Example.com", 28, "123.456.789-01", "88000-000", "Rua X", Sex.FEMALE);
 
-        // Guard ok
         doNothing().when(uniquenessGuard).checkOnCreate("Ana@Example.com", "123.456.789-01");
 
-        // Mapper -> Entity (evita save(null))
         User entity = new User(
                 "Ana",
                 "Ana@Example.com",
@@ -235,5 +235,46 @@ class UserServiceTest {
         ArgumentCaptor<Pageable> pageableCaptor = ArgumentCaptor.forClass(Pageable.class);
         verify(userRepository).findAll(pageableCaptor.capture());
         assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(100);
+    }
+
+    @Test
+    void delete_shouldThrow404_whenUserDoesNotExist() {
+        Long id = 999L;
+        when(userRepository.existsById(id)).thenReturn(false);
+
+        var ex = assertThrows(ResourceNotFoundException.class, () -> service.delete(id));
+        assertTrue(ex.getMessage().toLowerCase().contains("not found"));
+
+        verify(userRepository).existsById(id);
+        verify(userRepository, never()).deleteById(anyLong());
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    void delete_shouldSucceed_whenUserExists() {
+        Long id = 10L;
+        when(userRepository.existsById(id)).thenReturn(true);
+        doNothing().when(userRepository).deleteById(id);
+
+        assertDoesNotThrow(() -> service.delete(id));
+
+        InOrder inOrder = inOrder(userRepository);
+        inOrder.verify(userRepository).existsById(id);
+        inOrder.verify(userRepository).deleteById(id);
+        verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    void delete_shouldTranslateIntegrityViolation_to409() {
+        Long id = 7L;
+        when(userRepository.existsById(id)).thenReturn(true);
+        doThrow(new DataIntegrityViolationException("fk")).when(userRepository).deleteById(id);
+
+        assertThrows(ResourceConflictException.class, () -> service.delete(id));
+
+        InOrder inOrder = inOrder(userRepository);
+        inOrder.verify(userRepository).existsById(id);
+        inOrder.verify(userRepository).deleteById(id);
+        verifyNoMoreInteractions(userRepository);
     }
 }
