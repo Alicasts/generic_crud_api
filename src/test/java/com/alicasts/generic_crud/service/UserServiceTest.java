@@ -7,6 +7,7 @@ import com.alicasts.generic_crud.model.Sex;
 import com.alicasts.generic_crud.model.User;
 import com.alicasts.generic_crud.repository.UserRepository;
 import com.alicasts.generic_crud.service.exception.ResourceConflictException;
+import com.alicasts.generic_crud.service.guard.UserUniquenessGuard;
 import com.alicasts.generic_crud.service.impl.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,14 +32,11 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 class UserServiceTest {
 
-    @Mock
-    UserRepository userRepository;
+    @Mock UserRepository userRepository;
+    @Mock UserMapper userMapper;
+    @Mock UserUniquenessGuard uniquenessGuard;
 
-    @Mock
-    UserMapper userMapper;
-
-    @InjectMocks
-    UserService service;
+    @InjectMocks UserService service;
 
     private static UserCreateRequestDTO req(String name, String email, Integer age,
                                             String cpf, String cep, String address, Sex sex) {
@@ -64,7 +62,7 @@ class UserServiceTest {
     }
 
     @Test
-    void create_happyPath_normalizesForPrecheck_andPersistsOriginals() throws Exception {
+    void create_happyPath_callsGuard_andPersistsEntity_andMapsResponse() throws Exception {
         var body = req(
                 "Ana Silva",
                 "Ana@Example.com",
@@ -75,8 +73,18 @@ class UserServiceTest {
                 Sex.FEMALE
         );
 
-        when(userRepository.existsByEmail("ana@example.com")).thenReturn(false);
-        when(userRepository.existsByCpf("12345678901")).thenReturn(false);
+        doNothing().when(uniquenessGuard).checkOnCreate("Ana@Example.com", "123.456.789-01");
+
+        User entity = new User(
+                "Ana Silva",
+                "Ana@Example.com",
+                28,
+                "123.456.789-01",
+                "88000-000",
+                "Rua X, 100",
+                Sex.FEMALE
+        );
+        when(userMapper.toEntity(body)).thenReturn(entity);
 
         when(userRepository.save(any(User.class))).thenAnswer(inv -> {
             User u = inv.getArgument(0);
@@ -119,8 +127,7 @@ class UserServiceTest {
         assertEquals("12345678901", out.cpf());
         assertEquals("88000000", out.cep());
 
-        verify(userRepository).existsByEmail("ana@example.com");
-        verify(userRepository).existsByCpf("12345678901");
+        verify(uniquenessGuard).checkOnCreate("Ana@Example.com", "123.456.789-01");
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
@@ -131,11 +138,11 @@ class UserServiceTest {
     }
 
     @Test
-    void create_emailConflict_returnsListWithEmail() {
+    void create_emailConflict_guardThrows_returnsListWithEmail() {
         var body = req("Ana", "Ana@Example.com", 28, "123.456.789-01", "88000-000", "Rua X", Sex.FEMALE);
 
-        when(userRepository.existsByEmail("ana@example.com")).thenReturn(true);
-        when(userRepository.existsByCpf("12345678901")).thenReturn(false);
+        doThrow(new ResourceConflictException(List.of("email")))
+                .when(uniquenessGuard).checkOnCreate("Ana@Example.com", "123.456.789-01");
 
         ResourceConflictException ex =
                 assertThrows(ResourceConflictException.class, () -> service.create(body));
@@ -145,11 +152,11 @@ class UserServiceTest {
     }
 
     @Test
-    void create_cpfConflict_returnsListWithCpf() {
+    void create_cpfConflict_guardThrows_returnsListWithCpf() {
         var body = req("Ana", "Ana@Example.com", 28, "123.456.789-01", "88000-000", "Rua X", Sex.FEMALE);
 
-        when(userRepository.existsByEmail("ana@example.com")).thenReturn(false);
-        when(userRepository.existsByCpf("12345678901")).thenReturn(true);
+        doThrow(new ResourceConflictException(List.of("cpf")))
+                .when(uniquenessGuard).checkOnCreate("Ana@Example.com", "123.456.789-01");
 
         ResourceConflictException ex =
                 assertThrows(ResourceConflictException.class, () -> service.create(body));
@@ -159,11 +166,11 @@ class UserServiceTest {
     }
 
     @Test
-    void create_bothConflicts_returnsBothFields() {
+    void create_bothConflicts_guardThrows_returnsBothFields() {
         var body = req("Ana", "Ana@Example.com", 28, "123.456.789-01", "88000-000", "Rua X", Sex.FEMALE);
 
-        when(userRepository.existsByEmail("ana@example.com")).thenReturn(true);
-        when(userRepository.existsByCpf("12345678901")).thenReturn(true);
+        doThrow(new ResourceConflictException(List.of("email", "cpf")))
+                .when(uniquenessGuard).checkOnCreate("Ana@Example.com", "123.456.789-01");
 
         ResourceConflictException ex =
                 assertThrows(ResourceConflictException.class, () -> service.create(body));
@@ -173,17 +180,32 @@ class UserServiceTest {
     }
 
     @Test
-    void create_dbUniqueViolation_fallback409Generic_fieldsEmpty() {
+    void create_dbUniqueViolation_fallback409Generic_fieldsEmpty() throws Exception {
         var body = req("Ana", "Ana@Example.com", 28, "123.456.789-01", "88000-000", "Rua X", Sex.FEMALE);
 
-        when(userRepository.existsByEmail("ana@example.com")).thenReturn(false);
-        when(userRepository.existsByCpf("12345678901")).thenReturn(false);
-        when(userRepository.save(any(User.class))).thenThrow(new DataIntegrityViolationException("duplicate"));
+        // Guard ok
+        doNothing().when(uniquenessGuard).checkOnCreate("Ana@Example.com", "123.456.789-01");
+
+        // Mapper -> Entity (evita save(null))
+        User entity = new User(
+                "Ana",
+                "Ana@Example.com",
+                28,
+                "123.456.789-01",
+                "88000-000",
+                "Rua X",
+                Sex.FEMALE
+        );
+        when(userMapper.toEntity(body)).thenReturn(entity);
+
+        when(userRepository.save(any(User.class)))
+                .thenThrow(new DataIntegrityViolationException("duplicate"));
 
         ResourceConflictException ex =
                 assertThrows(ResourceConflictException.class, () -> service.create(body));
 
-        assertTrue(ex.getFields().isEmpty());
+        assertTrue(ex.getFields() == null || ex.getFields().isEmpty());
+        verify(userRepository).save(entity);
     }
 
     @Test
@@ -214,5 +236,4 @@ class UserServiceTest {
         verify(userRepository).findAll(pageableCaptor.capture());
         assertThat(pageableCaptor.getValue().getPageSize()).isEqualTo(100);
     }
-
 }
