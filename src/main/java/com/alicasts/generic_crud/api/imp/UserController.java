@@ -1,5 +1,6 @@
-package com.alicasts.generic_crud.api;
+package com.alicasts.generic_crud.api.imp;
 
+import com.alicasts.generic_crud.api.IUserController;
 import com.alicasts.generic_crud.api.dto.PageResponse;
 import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
 import com.alicasts.generic_crud.api.dto.UserResponseDTO;
@@ -25,7 +26,7 @@ import java.net.URI;
 @RestController
 @RequestMapping("/api/users")
 @Validated
-public class UserController {
+public class UserController implements IUserController {
 
     private final IUserService userService;
 
@@ -33,6 +34,7 @@ public class UserController {
         this.userService = userService;
     }
 
+    @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public UserResponseDTO create(@Valid @RequestBody UserCreateRequestDTO dto,
@@ -49,6 +51,7 @@ public class UserController {
         return created;
     }
 
+    @Override
     @GetMapping
     public PageResponse<UserResponseDTO> getAll(
             @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC)
@@ -57,17 +60,20 @@ public class UserController {
         return userService.findAll(pageable);
     }
 
+    @Override
     @GetMapping(value = "/{id:\\d+}", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDTO getById(@PathVariable Long id) {
         return userService.findById(id);
     }
 
 
+    @Override
     @GetMapping(value = "/by-email", produces = MediaType.APPLICATION_JSON_VALUE)
     public UserResponseDTO getByEmail(@RequestParam @Email String email) {
         return userService.findByEmail(email);
     }
 
+    @Override
     @PutMapping("/{id}")
     public UserResponseDTO update(
             @PathVariable Long id,
@@ -75,6 +81,7 @@ public class UserController {
         return userService.update(id, requestData);
     }
 
+    @Override
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable @Min(1) Long id) {
         userService.delete(id);

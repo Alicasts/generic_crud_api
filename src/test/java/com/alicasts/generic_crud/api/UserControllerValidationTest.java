@@ -1,5 +1,6 @@
 package com.alicasts.generic_crud.api;
 
+import com.alicasts.generic_crud.api.imp.UserController;
 import com.alicasts.generic_crud.service.IUserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
