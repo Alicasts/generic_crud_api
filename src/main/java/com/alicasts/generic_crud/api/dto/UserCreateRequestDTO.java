@@ -1,8 +1,10 @@
 package com.alicasts.generic_crud.api.dto;
 
 import com.alicasts.generic_crud.model.Sex;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.validation.constraints.*;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class UserCreateRequestDTO {
 
     @NotBlank
@@ -33,7 +35,7 @@ public class UserCreateRequestDTO {
     @NotNull
     private Sex sex;
 
-    public void UserCreateRequest() {}
+    public UserCreateRequestDTO() {}
 
     public String getName() { return name; }
     public String getEmail() { return email; }

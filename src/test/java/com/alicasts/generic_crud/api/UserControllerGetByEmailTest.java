@@ -2,6 +2,7 @@ package com.alicasts.generic_crud.api;
 
 import com.alicasts.generic_crud.api.dto.UserResponseDTO;
 import com.alicasts.generic_crud.api.exception.GlobalExceptionHandler;
+import com.alicasts.generic_crud.api.imp.UserController;
 import com.alicasts.generic_crud.model.Sex;
 import com.alicasts.generic_crud.service.IUserService;
 import com.alicasts.generic_crud.service.exception.ResourceNotFoundException;

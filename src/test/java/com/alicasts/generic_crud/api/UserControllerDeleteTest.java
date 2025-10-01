@@ -1,13 +1,12 @@
 package com.alicasts.generic_crud.api;
 
 import com.alicasts.generic_crud.api.exception.GlobalExceptionHandler;
+import com.alicasts.generic_crud.api.imp.UserController;
 import com.alicasts.generic_crud.service.IUserService;
 import com.alicasts.generic_crud.service.exception.ResourceConflictException;
 import com.alicasts.generic_crud.service.exception.ResourceNotFoundException;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.context.annotation.Import;

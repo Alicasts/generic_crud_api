@@ -1,6 +1,7 @@
 package com.alicasts.generic_crud.api;
 
 import com.alicasts.generic_crud.api.dto.UserCreateRequestDTO;
+import com.alicasts.generic_crud.api.imp.UserController;
 import com.alicasts.generic_crud.service.IUserService;
 import com.alicasts.generic_crud.service.exception.ResourceConflictException;
 import org.junit.jupiter.api.Test;
